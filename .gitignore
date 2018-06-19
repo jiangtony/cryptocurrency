@@ -1,0 +1,6 @@
+# dependencies
+/node_modules
+
+# test
+dev-test.js
+block.test.js
