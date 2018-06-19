@@ -18,10 +18,12 @@ class Block{
 			Data: ${this.data}`;
 	}
 
+	// Genesis block
 	static genesis() {
 		return new this('genesis', 'none', 'first', []);
 	}
 
+	// Creates a new block
 	static mineBlock(lastBlock, data) {
 		const timestamp = Date.now();
 		const prevHash = lastBlock.hash;
@@ -29,8 +31,16 @@ class Block{
 		return new this(timestamp, prevHash, hash, data);
 	}
 
+	// Generate SHA-256 hash
 	static hash(timestamp, prevHash, data) {
 		return SHA256(`${timestamp}${prevHash}${data}`).toString();
+	}
+
+	// Generates the hash again, which should be identical to hash field
+	// if the block has not been tampered with
+	static checkHash(block) {
+		const {timestamp, prevHash, data} = block;
+		return Block.hash(timestamp, prevHash, data);
 	}
 }
 

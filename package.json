@@ -7,6 +7,10 @@
     "test": "jest --watchAll",
     "dev-test": "nodemon dev-test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiangtony/blockchain.git"
+  },
   "keywords": [],
   "author": "Tony Jiang",
   "license": "ISC",
