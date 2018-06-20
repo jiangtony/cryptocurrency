@@ -36,8 +36,10 @@ class Block{
 		return SHA256(`${timestamp}${prevHash}${data}`).toString();
 	}
 
-	// Generates the hash again, which should be identical to hash field
-	// if the block has not been tampered with
+	/**
+	 * Generates the hash again, which should be identical to hash field
+	 * if the block has not been tampered with
+	 */
 	static checkHash(block) {
 		const {timestamp, prevHash, data} = block;
 		return Block.hash(timestamp, prevHash, data);
