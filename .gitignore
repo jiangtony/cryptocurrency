@@ -5,3 +5,4 @@
 dev-test.js
 /blockchain/block.test.js
 /blockchain/index.test.js
+/wallet/transaction.test.js
