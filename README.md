@@ -1,1 +1,1 @@
-Implementing my own blockchain
+Implementing a cryptocurrency
