@@ -6,3 +6,5 @@ dev-test.js
 /blockchain/block.test.js
 /blockchain/index.test.js
 /wallet/transaction.test.js
+/wallet/pool.test.js
+/wallet/index.test.js
