@@ -3,15 +3,20 @@
 
 const Websocket = require('ws');
 const NETWORK_PORT = process.env.NETWORK_PORT || 5000;
+const MESSAGE_TYPES = { 
+	chain: 'CHAIN',
+	transaction: 'TRANSACTION'
+};
 
 // A string of all the nodes separated by commas
 // Example: ws://localhost:5000,ws://localhost:5001,ws://localhost:5002
-const nodes = process.env.NODES ? process.env.NODES.split(','):[];
+const nodes = process.env.NODES ? process.env.NODES.split(',') : [];
 
 class Network {
 	// Nodes can broadcast their block
-	constructor(blockchain) {
+	constructor(blockchain, pool) {
 		this.blockchain = blockchain;
+		this.pool = pool;
 		this.sockets = [];
 	}
 
@@ -50,23 +55,36 @@ class Network {
 		// Event listener for messages sent in connectSocket function
 		socket.on('message', message => {
 			const data = JSON.parse(message);
-			// console.log('data', data);
-
-			// Replace chain if received chain is longer
-			this.blockchain.replaceChain(data);
+			switch(data.type) {
+				case MESSAGE_TYPES.chain:
+					// Replace chain if received chain is longer
+					this.blockchain.replaceChain(data.chain);
+					break;
+				case MESSAGE_TYPES.transaction:
+					// Add a broadcasted transaction to the pool
+					this.pool.addToPool(data.transaction);
+					break;
+			}
 		});
 	}
 
 	// Send a message containing the blockchain to each socket in the server
 	sendChain(socket) {
-		socket.send(JSON.stringify(this.blockchain.chain));
+		socket.send(JSON.stringify({type: MESSAGE_TYPES.chain, chain: this.blockchain.chain}));
+	}
+
+	sendTransaction(socket, transaction) {
+		socket.send(JSON.stringify({type: MESSAGE_TYPES.transaction, transaction}));
 	}
 
 	// Broadcast to other nodes when a new block has been added to the chain
 	broadcastNewBlock() {
-		this.sockets.forEach(socket => {
-			this.sendChain(socket);
-		});
+		this.sockets.forEach(socket => this.sendChain(socket));
+	}
+
+	// Broadcast a transaction to other nodes
+	broadcastTransaction(transaction) {
+		this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
 	}
 }
 
