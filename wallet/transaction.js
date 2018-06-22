@@ -1,9 +1,10 @@
 const Util = require('../util');
 
-// Transactions contain an input and two outputs
+// Transactions contain an input and two (or more) outputs
 // Input: Timestamp, starting balance of sender, sender's address, sender's signature
 // Output1: balance of sender after sending, sender's address
 // Output2: amount sent, recipient's address
+// Subsequent outputs are more transactions by the same sender (of type Output2)
 class Transaction {
 	constructor() {
 		this.id = Util.id();
@@ -11,15 +12,34 @@ class Transaction {
 		this.outputs = [];
 	}
 
+	// Adds new output to existing transaction by the sender
+	update(senderWallet, recipient, amount) {
+		const senderOutput = this.outputs.find(output => output.address === senderWallet.publicKey);
+
+		if (amount > senderOutput.amount) {
+			console.log(`Amount of ${amount} exceeds balance.`);
+			return;
+		}
+
+		// Update Output1 of the sender
+		senderOutput.amount = senderOutput.amount - amount;
+
+		// Push Output2 to the array
+		this.outputs.push({amount, address: recipient});
+		Transaction.signTransaction(this, senderWallet);
+
+		return this;
+	}
+
 	/**
-	 *
+	 * @senderWallet The wallet of the sender
 	 * @recipient The recipient's address
 	 * @amount Amount that is being sent
 	 */
 	static newTransaction(senderWallet, recipient, amount) {
 		const transaction = new this();
 
-		if(amount > senderWallet.balance) {
+		if (amount > senderWallet.balance) {
 			console.log(`Amount of ${amount} exceeds balance.`);
 			return;
 		}
@@ -48,6 +68,8 @@ class Transaction {
 		return Util.verifySignature(transaction.input.address, transaction.input.signature, 
 			Util.hash(transaction.outputs));
 	}
+
+
 }
 
 module.exports = Transaction;
