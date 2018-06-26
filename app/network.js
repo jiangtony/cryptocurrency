@@ -5,7 +5,8 @@ const Websocket = require('ws');
 const NETWORK_PORT = process.env.NETWORK_PORT || 5000;
 const MESSAGE_TYPES = { 
 	chain: 'CHAIN',
-	transaction: 'TRANSACTION'
+	transaction: 'TRANSACTION',
+	clear: 'CLEAR'
 };
 
 // A string of all the nodes separated by commas
@@ -64,6 +65,10 @@ class Network {
 					// Add a broadcasted transaction to the pool
 					this.pool.addToPool(data.transaction);
 					break;
+				case MESSAGE_TYPES.clear:
+					// Broadcast to clear pool
+					this.pool.clear();
+					break;
 			}
 		});
 	}
@@ -85,6 +90,10 @@ class Network {
 	// Broadcast a transaction to other nodes
 	broadcastTransaction(transaction) {
 		this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
+	}
+
+	broadcastClear() {
+		this.sockets.forEach(socket => socket.send(JSON.stringify({type: MESSAGE_TYPES.clear})));
 	}
 }
 

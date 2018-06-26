@@ -4,6 +4,7 @@ const Blockchain = require('../blockchain');
 const Network = require('./network');
 const Wallet = require('../wallet');
 const Pool = require('../wallet/pool');
+const Miner = require('./miner');
 
 const HTTP_PORT = process.env.HTTP_PORT || 3000;
 
@@ -12,6 +13,7 @@ const bc = new Blockchain();
 const wallet = new Wallet();
 const pool = new Pool();
 const network = new Network(bc, pool);
+const miner = new Miner(bc, pool, wallet, network);
 
 app.use(bodyParser.json());
 
@@ -40,6 +42,13 @@ app.post('/transact', (req, res) => {
 app.get('/publickey', (req, res) => {
 	res.json({publicKey: wallet.publicKey});
 });
+
+app.get('/mine', (req,res) => {
+	const block = miner.mine();
+	console.log(`New block added: ${block.toString()}`);
+	res.redirect('/');
+});
+
 
 app.listen(HTTP_PORT, () => {
 	console.log(`Server is up and running on port ${HTTP_PORT}`);

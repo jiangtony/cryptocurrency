@@ -1,6 +1,8 @@
 // Transaction pool
 // All transactions are added to this pool
 
+const Transaction = require('../wallet/transaction');
+
 class Pool {
 	constructor() {
 		this.pool = [];
@@ -22,6 +24,31 @@ class Pool {
 		return this.pool.find(trans => trans.input.address === address);
 	}
 
+	// Returns a pool of valid transactions
+	// Checks amounts and signature again
+	validTransactions() {
+		return this.pool.filter(transaction => {
+			const outputTotal = transaction.outputs.reduce((total, output) => {
+				return total + output.amount;
+			}, 0);
+
+			if(transaction.input.amount !== outputTotal) {
+				console.log(`Invalid transaction from ${transaction.input.address}`);
+				return;
+			}
+
+			if(!Transaction.verifyTransaction(transaction)) {
+				console.log(`Invalid signature from ${transaction.input.address}`);
+				return;
+			}
+
+			return transaction;
+		});
+	}
+
+	clear() {
+		this.pool = [];
+	}
 }
 
 module.exports = Pool;
