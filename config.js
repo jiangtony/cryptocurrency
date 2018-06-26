@@ -7,6 +7,7 @@ const MINE_RATE = 5000;
 // For simulation purposes, users start with an existing balance
 const INITIAL_BALANCE = 500;
 
-// 
+// Reward for mining a block
 const MINING_REWARD = 10;
+
 module.exports = { DIFFICULTY, MINE_RATE, INITIAL_BALANCE, MINING_REWARD };
